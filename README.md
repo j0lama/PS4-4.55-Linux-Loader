@@ -11,7 +11,7 @@ use https://github.com/xvortex/ps4-payload-sdk to compile it. You also need to c
 
 For now only some PS4 FAT models are supported, see the list [here](https://twitter.com/valentinbreiz/status/947864073085079552).
 
-You need a FAT32 formatted USB drive plugged in on any PS4's USB port with the following files on the root directory : bzImage and initramfs.cpio.gz. You can download [them here](https://mega.nz/#!hEh1QI4B!gCDA5l7GyTekQ-fURvKw6WRieSbHETb3tYHb--SkmhM).
+You need a FAT32 formatted ([Mac OS](https://www.admfactory.com/how-to-format-usb-flash-drive-to-fat32-in-mac-os/)) / [Windows](https://www.easeus.com/partition-master/best-fat32-format-tool.html) USB drive plugged in on any PS4's USB port with the following files on the root directory : bzImage and initramfs.cpio.gz. You can download [them here](https://mega.nz/#!hEh1QI4B!gCDA5l7GyTekQ-fURvKw6WRieSbHETb3tYHb--SkmhM).
 
 Then you will need to send the payload (PS4-Linux-Loader-Vultra.bin) to your PS4. For that go to your PS4 web browser, go to [4.55 Exploit](http://crack.bargains/455/) and send the payload to your PS4 using netcat or other.
 
