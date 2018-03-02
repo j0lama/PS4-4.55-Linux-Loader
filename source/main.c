@@ -3,14 +3,12 @@
 #include "ps4.h"
 #include "defines.h"
 
-#define KERN_XFAST_SYSCALL 0x3095D0
-
 #define	CTL_KERN	1	/* "high kernel": proc, limits */
 #define	KERN_PROC	14	/* struct: process entries */
 #define	KERN_PROC_VMMAP	32	/* VM map entries for process */
 #define	KERN_PROC_PID	1	/* by process id */
 
-extern char kexec2[];
+extern char kexec[];
 extern unsigned kexec_size;
 
 static int sock;
@@ -30,6 +28,10 @@ unsigned int long long __readmsr(unsigned long __register) {
 	return (((unsigned int long long)__edx) << 32) | (unsigned int long long)__eax;
 }
 
+#define	KERN_XFAST_SYSCALL	0x3095D0	// 4.55
+#define KERN_PRISON_0		0x10399B0 //4.55
+#define KERN_ROOTVNODE		0x21AFA30 //4.55
+
 int kpayload(struct thread *td, struct kpayload_args* args){
 
 	//Starting kpayload...
@@ -41,10 +43,10 @@ int kpayload(struct thread *td, struct kpayload_args* args){
 	cred = td->td_proc->p_ucred;
 
 	//Reading kernel_base...
-	void* kernel_base = &((uint8_t*)__readmsr(0xC0000082))[-0x3095D0];
+	void* kernel_base = &((uint8_t*)__readmsr(0xC0000082))[-KERN_XFAST_SYSCALL];
 	uint8_t* kernel_ptr = (uint8_t*)kernel_base;
-	void** got_prison0 =   (void**)&kernel_ptr[0x10399B0];
-	void** got_rootvnode = (void**)&kernel_ptr[0x21AFA30];
+	void** got_prison0 =   (void**)&kernel_ptr[KERN_PRISON_0];
+	void** got_rootvnode = (void**)&kernel_ptr[KERN_ROOTVNODE];
 	
 	//Resolve kernel functions...
 	int (*copyout)(const void *kaddr, void *uaddr, size_t len) = (void *)(kernel_base + 0x14A7B0);
@@ -65,7 +67,7 @@ int kpayload(struct thread *td, struct kpayload_args* args){
 	
 	//Kexec init
 	void *DT_HASH_SEGMENT = (void *)(kernel_base+ 0xB1D820);
-	memcpy(DT_HASH_SEGMENT,kexec2, kexec_size);
+	memcpy(DT_HASH_SEGMENT,kexec, kexec_size);
 
 	void (*kexec_init)(void *, void *) = DT_HASH_SEGMENT;
 
@@ -97,7 +99,7 @@ int _main(struct thread *td) {
 
 	server.sin_len = sizeof(server);
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = IP(192, 168, 1, 12);
+	server.sin_addr.s_addr = IP(192, 168, 88, 112);
 	server.sin_port = sceNetHtons(9023);
 	memset(server.sin_zero, 0, sizeof(server.sin_zero));
 	sock = sceNetSocket("debug", AF_INET, SOCK_STREAM, 0);
@@ -183,4 +185,5 @@ void usbthing()
 	syscall(37, 1, 30);
 
 }
+
 
