@@ -15,9 +15,12 @@ You need a FAT32 formatted ([Mac OS](https://www.admfactory.com/how-to-format-us
 
 Then you will need to send the payload (PS4-Linux-Loader-Vultra.bin) to your PS4. For that go to your PS4 web browser, go to [4.55 Exploit](http://crack.bargains/455/) and send the payload to your PS4 using netcat or other.
 
-## To do:
+# For 4.05:
+ 	 
+-- Port MN864729 transmitter in Linux for a working video output on newer PS4 (WIP).	+https://github.com/valentinbreiz/PS4-Linux-Loader
 
-- 
+# For PS4 Pro:
++ https://github.com/eeply/ps4-linux/tree/ps4pro
 
 ## Credits and links
 Thanks to Specter, valentinbreiz.
