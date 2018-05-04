@@ -3,6 +3,10 @@
 #include "ps4.h"
 #include "defines.h"
 
+#define KERN_XFAST_SYSCALL 0x3095D0 //4.55
+#define KERN_PRISON_0		0x10399B0 //4.55
+#define KERN_ROOTVNODE		0x21AFA30 //4.55
+
 #define	CTL_KERN	1	/* "high kernel": proc, limits */
 #define	KERN_PROC	14	/* struct: process entries */
 #define	KERN_PROC_VMMAP	32	/* VM map entries for process */
@@ -28,14 +32,10 @@ unsigned int long long __readmsr(unsigned long __register) {
 	return (((unsigned int long long)__edx) << 32) | (unsigned int long long)__eax;
 }
 
-#define	KERN_XFAST_SYSCALL	0x3095D0	// 4.55
-#define KERN_PRISON_0		0x10399B0 //4.55
-#define KERN_ROOTVNODE		0x21AFA30 //4.55
-
 int kpayload(struct thread *td, struct kpayload_args* args){
 
 	//Starting kpayload...
-
+	
 	struct ucred* cred;
 	struct filedesc* fd;
 
@@ -43,7 +43,7 @@ int kpayload(struct thread *td, struct kpayload_args* args){
 	cred = td->td_proc->p_ucred;
 
 	//Reading kernel_base...
-	void* kernel_base = &((uint8_t*)__readmsr(0xC0000082))[-KERN_XFAST_SYSCALL];
+	void* kernel_base = &((uint8_t*)__readmsr(0xC0000082))[KERN_XFAST_SYSCALL];
 	uint8_t* kernel_ptr = (uint8_t*)kernel_base;
 	void** got_prison0 =   (void**)&kernel_ptr[KERN_PRISON_0];
 	void** got_rootvnode = (void**)&kernel_ptr[KERN_ROOTVNODE];
@@ -66,7 +66,7 @@ int kpayload(struct thread *td, struct kpayload_args* args){
 	writeCr0(cr0 & ~X86_CR0_WP);
 	
 	//Kexec init
-	void *DT_HASH_SEGMENT = (void *)(kernel_base+ 0xB1D820);
+	void *DT_HASH_SEGMENT = (void *)(kernel_base+ 0xB1D820); // Vultra
 	memcpy(DT_HASH_SEGMENT,kexec, kexec_size);
 
 	void (*kexec_init)(void *, void *) = DT_HASH_SEGMENT;
@@ -74,7 +74,7 @@ int kpayload(struct thread *td, struct kpayload_args* args){
 	kexec_init((void *)(kernel_base+0x17F30), NULL);
 
 	// Say hello and put the kernel base in userland to we can use later
-	printfkernel("PS4 Linux Loader for 4.55\n");
+	printfkernel("\nPS4 Linux Loader for 4.55 by Vultra\n");
 
 	printfkernel("kernel base is:0x%016llx\n", kernel_base);
 
@@ -99,7 +99,7 @@ int _main(struct thread *td) {
 
 	server.sin_len = sizeof(server);
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = IP(192, 168, 88, 112);
+	server.sin_addr.s_addr = IP(192, 168, 0, 20);
 	server.sin_port = sceNetHtons(9023);
 	memset(server.sin_zero, 0, sizeof(server.sin_zero));
 	sock = sceNetSocket("debug", AF_INET, SOCK_STREAM, 0);
@@ -185,5 +185,3 @@ void usbthing()
 	syscall(37, 1, 30);
 
 }
-
-
