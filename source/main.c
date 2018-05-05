@@ -49,9 +49,9 @@ int kpayload(struct thread *td, struct kpayload_args* args){
 	void** got_rootvnode = (void**)&kernel_ptr[KERN_ROOTVNODE];
 	
 	//Resolve kernel functions...
-	int (*copyout)(const void *kaddr, void *uaddr, size_t len) = (void *)(kernel_base + 0x1EA520);
-	int (*printfkernel)(const char *fmt, ...) = (void *)(kernel_base + 0x00435C70);
-	int (*copyin)(const void *uaddr, void *kaddr, size_t len) = (void *)(kernel_base + 0x1EA600);
+	int (*copyout)(const void *kaddr, void *uaddr, size_t len) = (void *)(kernel_base + 0x14A7B0);
+	int (*printfkernel)(const char *fmt, ...) = (void *)(kernel_base + 0x17F30);
+	int (*copyin)(const void *uaddr, void *kaddr, size_t len) = (void *)(kernel_base + 0x14A890);
 
 	cred->cr_uid = 0;
 	cred->cr_ruid = 0;
@@ -71,10 +71,10 @@ int kpayload(struct thread *td, struct kpayload_args* args){
 
 	void (*kexec_init)(void *, void *) = DT_HASH_SEGMENT;
 
-	kexec_init((void *)(kernel_base+0x00435C70), NULL);
+	kexec_init((void *)(kernel_base+0x17F30), NULL);
 
 	// Say hello and put the kernel base in userland to we can use later
-	printfkernel("\nPS4 Linux Loader for 5.01 by Vultra\n");
+	printfkernel("\nPS4 Linux Loader for 4.55 by Vultra\n");
 
 	printfkernel("kernel base is:0x%016llx\n", kernel_base);
 
